@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 'use strict';
-
+const superagent = require('superagent');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -10,9 +10,12 @@ app.use(cors());
 
 app.get('/location', (request, response) => {
   try {
-    const geoData = require('./data/geo.json');
-    const location = new Location(request.query.location, geoData);
-    response.send(location);
+   superagent.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODEAPI_KEY}`)
+   .then((geoData) => {
+     const location = new Location(request.query.data, geoData.body);
+     response.send(location);
+   });
+    
   } catch(error) {
     response.status(500).send('Dis website is broke. Call someone who cares.');
   }
